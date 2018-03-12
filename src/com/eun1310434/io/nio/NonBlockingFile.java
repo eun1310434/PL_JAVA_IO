@@ -43,7 +43,7 @@
              ก็ LongBuffer
              ก็ DoubleBuffer
 =====================================================================*/
-package com.eun1310434.nio;
+package com.eun1310434.io.nio;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

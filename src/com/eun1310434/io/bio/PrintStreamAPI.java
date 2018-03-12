@@ -1,21 +1,14 @@
 /*=====================================================================
 □ Infomation
-  ○ Data : 08.03.2018
+  ○ Data : 07.03.2018
   ○ Mail : eun1310434@naver.com
   ○ Blog : https://blog.naver.com/eun1310434
   ○ Reference : 쉽게 배우는 소프트웨어 공학, Java Documentation, 헬로 자바 프로그래밍, programmers.co.kr
 
 □ Function
-  ○ 문자열 입출력
-    - 클래스 이름이 Reader나 Writer로 끝남 → char단위 입출력 클래스
+  ○ PrintStream을 활용한 파일 입출력
+  ○ BufferOutStream 보다 편리  
 
-  ○ BufferedReader 
-    - readLine() 메소드가 한줄씩 읽음
-    - readLine()메소드는 읽어낼 때 더 이상 읽어 들일 내용이 없을 때 null을 리턴
-
-  ○ System.in 
-    - 키보드를 의미 (InputStream )
-    -InputStream 타입이므로 BufferedReader의 생성자에 바로 들어갈 수 없으므로 InputStreamReader 클래스를 이용
 
 □ Study
   ○ IO
@@ -60,15 +53,17 @@
               ← StringReader
               
 =====================================================================*/
-package com.eun1310434.bio;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+
+package com.eun1310434.io.bio;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-public class SystemStream {
+import java.io.PrintStream;
+
+public class PrintStreamAPI {
 	public static void main(String[] ar) throws IOException {
 		
 		//Folder Setting
@@ -80,38 +75,34 @@ public class SystemStream {
 		
 
 		//Data File Setting
-		String dir = dir_parent + "DATA_SystemStream.txt";
+		String dir = dir_parent + "DATA_PrintStreamAPI.txt";
 		File file = new File(dir);
 		if(!file.exists()){
 			file.createNewFile();
 		}
 		
+		//Data Out
+		FileOutputStream out = new FileOutputStream(file);
+		BufferedOutputStream out2 = new BufferedOutputStream(out, 512); // 512byte로 저장
+		PrintStream out3 = new PrintStream(out2);
+		out3.println("eun1310434@naver.com");
+		out3.close();
 		
-		PrintWriter out = 
-				new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)), true);
-		
-		BufferedReader in = 
-				new BufferedReader(new InputStreamReader(System.in));
-		
-		out.print("NAME = ");
-		out.flush();
-		String name = in.readLine();
-		
-		out.print("Age = ");
-		out.flush();
-		int age = Integer.parseInt(in.readLine());
-		
-		out.print("Weight = ");
-		out.flush();
-		float weight = Float.parseFloat(in.readLine());
-		
-		out.println();
-		
-		out.println("Name : " + name);
-		out.println("Age : " + age);
-		out.println("Weight : " + weight);
-		
-		in.close();
-		out.close();
+		//Data In
+		FileInputStream in = new FileInputStream(file);
+		BufferedInputStream in2 = new BufferedInputStream(in, 512); // 512byte로 저장
+		while(true) {
+			//FileInputStream과 FileOutputStream는 1바이트씩 읽어들여 1바이트씩 저장
+			//return type은 정수 이며, 마지막 1byte에 데이터를 저장한 4byte(정수)로 읽어드림
+			//이는 읽어드리는 값이 없을 시 음수를 return하기 위함
+			int readCount = in2.read();
+			if(readCount < 0) { //읽어드린 값이 없을시 음수 
+				//System.out.println(readCount);//-1로 찍히고 종료됨
+				break;
+			}
+			System.out.print((char)readCount);
+		}
+		//꼭 닫기
+		in.close();		
 	}
 }

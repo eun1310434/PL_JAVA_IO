@@ -74,7 +74,7 @@
               
 =====================================================================*/
 
-package com.eun1310434.bio;
+package com.eun1310434.io.bio;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;

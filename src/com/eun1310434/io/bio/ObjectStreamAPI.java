@@ -1,18 +1,14 @@
 /*=====================================================================
 □ Infomation
-  ○ Data : 07.03.2018
+  ○ Data : 08.03.2018
   ○ Mail : eun1310434@naver.com
   ○ Blog : https://blog.naver.com/eun1310434
-  ○ Reference : 쉽게 배우는 소프트웨어 공학, Java Documentation, 헬로 자바 프로그래밍
+  ○ Reference : 쉽게 배우는 소프트웨어 공학, Java Documentation, 헬로 자바 프로그래밍, programmers.co.kr
 
 □ Function
-  ○ DataStream을 활용한 실제 파일 입출력 활용
-      - DataOutputStream, DataInputStream
-      - ArrayList 활용
-  ○ close 를 호출하지 않아도 자동으로 close되게 하는 방법 : try with resources
-    - try-with-resources 블럭 선언
-      : close()메소드를 사용자가 호출하지 않더라도, Exception이 발생하지 않았다면 자동으로 close()가 되게 할 수 있는 방법
-
+  ○ 오브젝트 스트림을 활용한 파일 입출력
+  ○ 오브젝트 파일의 내용을 리스트로 갖고오기
+    - list = (ArrayList<ObjectStreamAPI_Info>) in.readObject();
 
 □ Study
   ○ IO
@@ -57,113 +53,133 @@
               ← StringReader
               
 =====================================================================*/
-
-package com.eun1310434.bio;
+package com.eun1310434.io.bio;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-public class DataStream02 {
-	private static Scanner cin = new Scanner(System.in);
+
+class ObjectStreamAPI_Info implements Serializable {
+	private static final long serialVersionUID = 1L;
+	private String _string;
+	private int _int;
+	private double _double;
+	private float _float;
 	
+	public ObjectStreamAPI_Info(String _string, int _int, double _double, float _float) {
+		this._string = _string;
+		this._int = _int;
+		this._double = _double;
+		this._float = _float;
+	}
+	
+	public void display() {
+		System.out.println("___________________________________");
+		System.out.println("String : "+_string);
+		System.out.println("Integer : "+_int);
+		System.out.println("Double : "+_double);
+		System.out.println("Float : "+_float);
+	}
+}
+
+
+@SuppressWarnings("unchecked")
+public class ObjectStreamAPI {
+	
+	private static Scanner cin = new Scanner(System.in);
 	private static File dataFile;
-	private static int DataCount= 0;
-	private static List<String> STRING = new ArrayList<>();
-	private static List<Integer> INTEGER = new ArrayList<>();
-	private static List<Double> DOUBLE = new ArrayList<>();
-	private static List<Float> FLOAT = new ArrayList<>();
-    long startTime = System.currentTimeMillis();   //시간체크
+	private static List<ObjectStreamAPI_Info> list = new ArrayList<>();
 	
 	static {
-		//Class load시 같이 실행됨.
-		
+		//클래스가 생성됨과 동시에 실행
 		//Folder Setting
-		String dir_parent = "D:\\PJM\\ECLIPSE\\Examples\\PL_JAVA_IO\\data\\";
+		String dir_parent = "D:\\PJM\\ECLIPSE\\Examples\\PL_JAVA_IO\\data";
 		File file_parnet = new File(dir_parent);
 		if(!file_parnet.exists()){
 			file_parnet.mkdir();
 		}
-		
-		dataFile = new File(dir_parent, "DATA_DataStream02.dat");
-		if(dataFile.exists()) {
-			
+
+		//Data File Setting
+		dataFile = new File(dir_parent,"DATA_ObjectStreamAPI.dat" );
+		if(dataFile.exists()){
 			try {
-				DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(dataFile), 512));
-				DataCount = in.readInt();
-				for(int n = 0; n < DataCount; ++n) {
-					STRING.add(in.readUTF());
-					INTEGER.add(in.readInt());
-					DOUBLE.add(in.readDouble());
-					FLOAT.add(in.readFloat());
-				}
+				ObjectInputStream in = new ObjectInputStream(
+					new BufferedInputStream(
+							new FileInputStream(dataFile), 512));
+				
+				//오브젝트 파일의 내용을 리스트로 갖고오기
+				list = (ArrayList<ObjectStreamAPI_Info>) in.readObject();
+				
 				in.close();
 			}catch(Exception ex) {
-				System.err.println("Loading error : " + ex.getMessage());
+				System.err.println("IOException : " + ex.getMessage().toString());
 				System.exit(-1);
 			}
 		}
 	}
 	
 	public static void inputData() {
-		DataCount++;
-		System.out.print("STRING = ");
-		STRING.add(cin.next());
-		System.out.print("INTEGER = ");
-		INTEGER.add(cin.nextInt());
-		System.out.print("DOUBLE = ");
-		DOUBLE.add(cin.nextDouble());
-		System.out.print("FLOAT = ");
-		FLOAT.add(cin.nextFloat());
-		System.out.print("총 DataCount : "+DataCount);
+		System.out.print("String = ");
+		String _string = cin.next();
+		
+		System.out.print("Integer = ");
+		int _integer = cin.nextInt();
+		
+		System.out.print("Double = ");
+		double _double = cin.nextDouble();
+		
+		System.out.print("Float = ");
+		float _float = cin.nextFloat();
+		
+		ObjectStreamAPI_Info info = new ObjectStreamAPI_Info(_string, _integer, _double, _float);
+		list.add(info);
 	}
 	
 	public static void outputData() {
-		for(int n = 0; n < STRING.size(); ++n) {
-			System.out.println("-----------------------");
-			System.out.println("DATA : "+(n + 1));
-			System.out.println("Stirng : "+STRING.get(n));
-			System.out.println("INTEGER : "+INTEGER.get(n));
-			System.out.println("DOUBLE : "+DOUBLE.get(n));
-			System.out.println("FLOAT : "+FLOAT.get(n));
+		for(ObjectStreamAPI_Info info: list) {
+			info.display();
+			System.out.println("");
 		}
-	}
+	}	
 	
 	public static void saveData() {
 		try {
-			DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(dataFile), 512));
-			out.writeInt(DataCount);//총 개수 저장
-			for(int n = 0; n < DataCount; ++n) {
-				out.writeUTF(STRING.get(n));
-				out.writeInt(INTEGER.get(n));
-				out.writeDouble(DOUBLE.get(n));
-				out.writeFloat(FLOAT.get(n));
-			}
+			ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(dataFile), 512));
+			out.writeObject(list);
 			out.close();
+			
 		}catch(Exception ex) {
-			System.err.println("저장 중 오류 발생 : " + ex.getMessage());
+			System.err.println("SAVE ERROR" + ex.getMessage());
 			System.exit(-1);
 		}
-		System.out.printf("총 %d개의 정보를 저장했습니다.\n", DataCount);
+		System.out.printf("Total Info Count : %d \n", list.size());
 	}
+	
 	
 	public static void main(String[] ar) {
 		int command = 0;
 		up: while(true) {
-			System.out.println("CODE - 1.입력 2.전체출력 3.저장후종료");
-			System.out.println("CODE >>");
+			System.out.println("1.Insert");
+			System.out.println("2.Print");
+			System.out.print("3.Finish(save)");
+			
 			command = cin.nextInt();
+			
 			switch(command) {
 				case 1 : inputData(); break;
 				case 2 : outputData(); break;
 				case 3 : saveData(); break up;
-				default: System.out.println("잘못 입력 하셨습니다.");
+				default: System.out.println("wrong insert");
 			}
+			System.out.println("");
+			System.out.println("");
 			System.out.println("");
 		}
 		cin.close();

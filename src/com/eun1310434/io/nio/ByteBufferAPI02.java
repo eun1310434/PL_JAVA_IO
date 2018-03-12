@@ -44,7 +44,7 @@
              ก็ LongBuffer
              ก็ DoubleBuffer
 =====================================================================*/
-package com.eun1310434.nio;
+package com.eun1310434.io.nio;
 import java.nio.ByteBuffer;
 
 public class ByteBufferAPI02 {

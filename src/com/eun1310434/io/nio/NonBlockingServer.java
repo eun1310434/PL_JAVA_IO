@@ -6,7 +6,10 @@
   ○ Reference : 쉽게 배우는 소프트웨어 공학, Java Documentation, 헬로 자바 프로그래밍, programmers.co.kr
 
 □ Function
-  ○ NonBlocking IO를 활용한 네트워크 클라이언트
+  ○ ByteBuffer를 활용한 네트워크 서버
+    - NonBlocking IO
+	- Blocking IO
+
 
 □ Study
   ○ IO
@@ -43,27 +46,72 @@
              ← LongBuffer
              ← DoubleBuffer
 =====================================================================*/
-package com.eun1310434.nio;
+package com.eun1310434.io.nio;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.Iterator;
 
-public class NonBlockingClient {
+public class NonBlockingServer {
 	public static void main(String[] ar) throws Exception {
-		SocketChannel client = SocketChannel.open(
-				new InetSocketAddress("localhost", 54321));
+		Selector selector = Selector.open();
 		
-		byte[] data = "Hello There!!!".getBytes();
-		byte[] data2 = "over".getBytes();
-		ByteBuffer byteData = ByteBuffer.wrap(data);
-		client.write(byteData);
-		byteData.clear();
-		Thread.sleep(100);
-		client.write(ByteBuffer.wrap(data2));
-		byteData.clear();
+		ServerSocketChannel serverSocket = ServerSocketChannel.open();
+		serverSocket.bind(new InetSocketAddress("localhost", 54321));
+		serverSocket.configureBlocking(false);
+		serverSocket.register(selector, serverSocket.validOps());
 		
-		client.close();
+		System.out.println("Server Ready...");
 		
-		System.out.println("Send Data!!!");
+		while(true) {
+			selector.select();
+			
+			Iterator<SelectionKey> selectedKeys = selector.selectedKeys().iterator();
+			
+			while(selectedKeys.hasNext()) {
+				SelectionKey selectedKey = selectedKeys.next();
+				
+				if(selectedKey.isAcceptable()) {
+					SocketChannel client = serverSocket.accept();
+					client.configureBlocking(false);
+					client.register(selector, SelectionKey.OP_READ);
+					System.out.println("Connection : " + client.getLocalAddress());
+				
+				} else if(selectedKey.isReadable()) {
+					
+					//체널을 획득
+					SocketChannel client = (SocketChannel)selectedKey.channel();
+					
+					//시스템
+					ByteBuffer byteData = ByteBuffer.allocateDirect(256);//시스템 메모리 사용시
+					//ByteBuffer byteData = ByteBuffer.allocate(256);//힙 메모리 사용시
+					client.read(byteData);
+
+					String receiveData ="";
+					if(byteData.hasArray()){
+						//힙 메모리 사용시
+						receiveData = new String(byteData.array()).trim();
+					}else{
+						//시스템 메모리 사용시
+						byteData.flip();//포지션을 제일 처음으로 위치
+						while(byteData.hasRemaining()){
+							receiveData = receiveData  + (char) byteData.get();//buffer의 크기만큼 담겨져 있기에 문자가 안나옴
+						}
+						byteData.clear();//깨끗하게 정리
+					}
+
+					if(receiveData.equalsIgnoreCase("over")) {
+						client.close();
+					} else {
+						System.out.println("Message : " + receiveData);
+					}
+				
+				}
+				selectedKeys.remove();
+			}
+		}
 	}
 }

@@ -55,7 +55,7 @@
               ก็ PipedReader
               ก็ StringReader
 =====================================================================*/
-package com.eun1310434.bio;
+package com.eun1310434.io.bio;
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.IOException;

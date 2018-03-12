@@ -70,7 +70,7 @@
               ก็ StringReader
               
 =====================================================================*/
-package com.eun1310434.bio;
+package com.eun1310434.io.bio;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;

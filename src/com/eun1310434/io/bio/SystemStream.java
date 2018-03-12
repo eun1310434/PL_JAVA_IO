@@ -1,17 +1,21 @@
 /*=====================================================================
 □ Infomation
-  ○ Data : 07.03.2018
+  ○ Data : 08.03.2018
   ○ Mail : eun1310434@naver.com
   ○ Blog : https://blog.naver.com/eun1310434
   ○ Reference : 쉽게 배우는 소프트웨어 공학, Java Documentation, 헬로 자바 프로그래밍, programmers.co.kr
 
 □ Function
-  ○ DataStream을 활용한 파일 입출력 활용
-    - DataOutputStream, DataInputStream
-  ○ close 를 호출하지 않아도 자동으로 close되게 하는 방법 : try with resources
-    - try-with-resources 블럭 선언
-      : close()메소드를 사용자가 호출하지 않더라도, Exception이 발생하지 않았다면 자동으로 close()가 되게 할 수 있는 방법
+  ○ 문자열 입출력
+    - 클래스 이름이 Reader나 Writer로 끝남 → char단위 입출력 클래스
 
+  ○ BufferedReader 
+    - readLine() 메소드가 한줄씩 읽음
+    - readLine()메소드는 읽어낼 때 더 이상 읽어 들일 내용이 없을 때 null을 리턴
+
+  ○ System.in 
+    - 키보드를 의미 (InputStream )
+    -InputStream 타입이므로 BufferedReader의 생성자에 바로 들어갈 수 없으므로 InputStreamReader 클래스를 이용
 
 □ Study
   ○ IO
@@ -56,19 +60,16 @@
               ← StringReader
               
 =====================================================================*/
-
-package com.eun1310434.bio;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+package com.eun1310434.io.bio;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-
-public class DataStream01 {
-	public static void main(String[] ar) {
-        long startTime = System.currentTimeMillis();   //시간체크
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+public class SystemStream {
+	public static void main(String[] ar) throws IOException {
 		
 		//Folder Setting
 		String dir_parent = "D:\\PJM\\ECLIPSE\\Examples\\PL_JAVA_IO\\data\\";
@@ -79,43 +80,38 @@ public class DataStream01 {
 		
 
 		//Data File Setting
-		String dir = dir_parent + "DATA_DataStream01.txt";
+		String dir = dir_parent + "DATA_SystemStream.txt";
 		File file = new File(dir);
 		if(!file.exists()){
-			try {
-				file.createNewFile();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			file.createNewFile();
 		}
 		
-		//close 를 호출하지 않아도 자동으로 close되게 하는 방법 : try with resources
-        try(//io객체 선언
-        		//데이터 out
-        		DataOutputStream out = new DataOutputStream(new FileOutputStream(file));
-        		//데이터 in
-        		DataInputStream in = new DataInputStream(new FileInputStream(file));
-        		
-        ){//io객체 사용
-    		out.writeInt(63);
-    		out.writeBoolean(true);
-    		
-    		System.out.println(in.readInt()); // <- out.writeInt(63); 읽어 옴
-    		System.out.println(in.readBoolean()); // <- out.writeBoolean(true);
-    		
-        }catch(Exception ex){
-            ex.printStackTrace();
-        }
 		
-		/*
-		 * 실제 파일에 저장된 정보 
-		 * :   ? <-데이터 타입으로 저장됨
-		 */
-
-        //메소드가 끝났을때 시간을 구하기 위함. 
-        long endTime = System.currentTimeMillis();
-        //메소드를 수행하는데 걸린 시간을 구할 수 있음. 
-        System.out.println("수행시간 : " + (endTime-startTime)); 
+		PrintWriter out = 
+				new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)), true);
+		
+		BufferedReader in = 
+				new BufferedReader(new InputStreamReader(System.in));
+		
+		out.print("NAME = ");
+		out.flush();
+		String name = in.readLine();
+		
+		out.print("Age = ");
+		out.flush();
+		int age = Integer.parseInt(in.readLine());
+		
+		out.print("Weight = ");
+		out.flush();
+		float weight = Float.parseFloat(in.readLine());
+		
+		out.println();
+		
+		out.println("Name : " + name);
+		out.println("Age : " + age);
+		out.println("Weight : " + weight);
+		
+		in.close();
+		out.close();
 	}
 }

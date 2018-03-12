@@ -42,7 +42,7 @@
     - java.nio.file 패키지의 클래스
       : Files, Paths
 =====================================================================*/
-package com.eun1310434.aio;
+package com.eun1310434.io.aio;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;

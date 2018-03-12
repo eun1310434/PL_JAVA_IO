@@ -6,8 +6,11 @@
   ○ Reference : 쉽게 배우는 소프트웨어 공학, Java Documentation, 헬로 자바 프로그래밍, programmers.co.kr
 
 □ Function
-  ○ PrintStream을 활용한 파일 입출력
-  ○ BufferOutStream 보다 편리  
+  ○ DataStream을 활용한 파일 입출력 활용
+    - DataOutputStream, DataInputStream
+  ○ close 를 호출하지 않아도 자동으로 close되게 하는 방법 : try with resources
+    - try-with-resources 블럭 선언
+      : close()메소드를 사용자가 호출하지 않더라도, Exception이 발생하지 않았다면 자동으로 close()가 되게 할 수 있는 방법
 
 
 □ Study
@@ -54,17 +57,18 @@
               
 =====================================================================*/
 
-package com.eun1310434.bio;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+package com.eun1310434.io.bio;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 
-public class PrintStreamAPI {
-	public static void main(String[] ar) throws IOException {
+public class DataStream01 {
+	public static void main(String[] ar) {
+        long startTime = System.currentTimeMillis();   //시간체크
 		
 		//Folder Setting
 		String dir_parent = "D:\\PJM\\ECLIPSE\\Examples\\PL_JAVA_IO\\data\\";
@@ -75,34 +79,43 @@ public class PrintStreamAPI {
 		
 
 		//Data File Setting
-		String dir = dir_parent + "DATA_PrintStreamAPI.txt";
+		String dir = dir_parent + "DATA_DataStream01.txt";
 		File file = new File(dir);
 		if(!file.exists()){
-			file.createNewFile();
-		}
-		
-		//Data Out
-		FileOutputStream out = new FileOutputStream(file);
-		BufferedOutputStream out2 = new BufferedOutputStream(out, 512); // 512byte로 저장
-		PrintStream out3 = new PrintStream(out2);
-		out3.println("eun1310434@naver.com");
-		out3.close();
-		
-		//Data In
-		FileInputStream in = new FileInputStream(file);
-		BufferedInputStream in2 = new BufferedInputStream(in, 512); // 512byte로 저장
-		while(true) {
-			//FileInputStream과 FileOutputStream는 1바이트씩 읽어들여 1바이트씩 저장
-			//return type은 정수 이며, 마지막 1byte에 데이터를 저장한 4byte(정수)로 읽어드림
-			//이는 읽어드리는 값이 없을 시 음수를 return하기 위함
-			int readCount = in2.read();
-			if(readCount < 0) { //읽어드린 값이 없을시 음수 
-				//System.out.println(readCount);//-1로 찍히고 종료됨
-				break;
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			System.out.print((char)readCount);
 		}
-		//꼭 닫기
-		in.close();		
+		
+		//close 를 호출하지 않아도 자동으로 close되게 하는 방법 : try with resources
+        try(//io객체 선언
+        		//데이터 out
+        		DataOutputStream out = new DataOutputStream(new FileOutputStream(file));
+        		//데이터 in
+        		DataInputStream in = new DataInputStream(new FileInputStream(file));
+        		
+        ){//io객체 사용
+    		out.writeInt(63);
+    		out.writeBoolean(true);
+    		
+    		System.out.println(in.readInt()); // <- out.writeInt(63); 읽어 옴
+    		System.out.println(in.readBoolean()); // <- out.writeBoolean(true);
+    		
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+		
+		/*
+		 * 실제 파일에 저장된 정보 
+		 * :   ? <-데이터 타입으로 저장됨
+		 */
+
+        //메소드가 끝났을때 시간을 구하기 위함. 
+        long endTime = System.currentTimeMillis();
+        //메소드를 수행하는데 걸린 시간을 구할 수 있음. 
+        System.out.println("수행시간 : " + (endTime-startTime)); 
 	}
 }
